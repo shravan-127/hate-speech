@@ -1,0 +1,45 @@
+﻿Zero-Shot Learning and Multilingual Evaluation
+Multilingual evaluation refers to the assessment and measurement of the performance of natural language processing (NLP) models across multiple languages. In the context of NLP, it's essential to evaluate the eﬀectiveness of models on a diverse set of languages to ensure their generalizability and robustness.
+First of all, we implemented functions to preprocess the datasets. We prepressed all the datasets. After that we performed splitting a dataset into training and testing sets using train_test_split and then tokenizing the text data using the BERT tokenizer from the Hugging Face Transformers library.
+* X: Represents the features (input data).
+* y: Represents the labels (output data).
+* test_size=0.3: Speciﬁes that 30% of the data should be used for testing, and the remaining 70% for training.
+* random_state=1: Sets a seed for random number generation to ensure reproducibility.
+* shuﬄe=True: Shuﬄes the data before splitting.
+* AutoTokenizer.from_pretrained: Initializes a BERT tokenizer from the Hugging Face Transformers library. 'bert-base-uncased' speciﬁes the pre-trained BERT model to be used. The 'uncased' variant indicates that the model is not case-sensitive.
+* tokenizer: Tokenizes the input text using the BERT tokenizer.
+* X_train.to_list(): Converts the training data to a list (assuming X_train is a pandas DataFrame or similar).
+* add_special_tokens=True: Adds special tokens such as [CLS] and [SEP].
+* max_length=100: Speciﬁes the maximum length of the tokenized sequences.
+* truncation=True: Truncates sequences longer than max_length.
+* padding='max_length': Pads sequences shorter than max_length with padding tokens.
+* return_tensors='tf': Returns TensorFlow tensors.
+* return_token_type_ids=False: Does not return token type IDs (used in BERT for distinguishing between diﬀerent segments).
+* return_attention_mask=True: Returns attention masks indicating which tokens are padding and which are not.
+Model Architecture
+* We used a bert-base-uncased model for training.
+* TFBertModel.from_pretrained: Loads the pre-trained BERT model ('bert-base- uncased' in this case) from the Hugging Face Transformers library.
+* Length = 100: Speciﬁes the length of the input sequences.
+* input_ids for token IDs and input_mask for attention masks.
+* embeddings = bert([input_ids, input_mask])[1], Applies the pre-trained BERT model (bert) to the input IDs and masks. The [1] index indicates that the output is the pooled output (CLS token), which is commonly used in downstream tasks.
+* out = Dropout(0.2)(embeddings), Applies a dropout layer with a dropout rate of 0.2 to the BERT embeddings to prevent overﬁtting.
+* out = Dense(64, activation='relu')(out), Adds a fully connected dense layer with 64 units and ReLU activation function.
+* out = Dropout(0.2)(out), Applies another dropout layer to the output of the dense layer.
+* y = Dense(1, activation='sigmoid')(out), Adds the final dense layer with a single unit and sigmoid activation function for binary classification.
+* model = Model(inputs=[input_ids, input_mask], outputs=y), Creates a Keras Model, specifying the inputs and outputs.
+* model.layers[2].trainable = True, Sets the BERT layer to be trainable. This means that during training, the weights of the BERT layer will be updated based on the task- speciﬁc data.
+Results:
+* We trained the above-mentioned model on DYNABENCH dataset. And during evaluation we obtained around 74% accuracy.
+* After that we trained the model using the DAVIDSON dataset. And we obtained 77% accuracy.
+* Then we trained the model on GHC dataset and obtained 86% accuracy.
+* Training on HATEVAL data set gave us 78% accuracy.
+* To check the robustness of model we test HATEVAL trained model on using MLMA dataset. At the time of evaluation model was tested on dataset directly without any preprocessing. And we obtained 68% accuracy.
+* Then we trained model on MLMA dataset and we obtained 80% accuracy.
+* Training on HATEXPLAIN gave us 83% accuracy.
+* Then we evaluated model that was trained on HATEXPLAIN. The evaluation was performed using French dataset. Accuracy obtained was 60%
+Multilingual Bert model:
+* We trained the Multilingual Bert model on the MLMA_Fr dataset. This dataset contains data in French language. Also, this is a multi-language model. During the evaluation we obtained 72%.
+* We evaluated this model on the DYNABENCH model and we obtained 50% accuracy.
+* We also evaluated the model on the GHC dataset and we obtained 83% accuracy.
+* The evaluation was performed on raw data without performing any preprocessing.
+* We trained the multilingual Bert with MLMA_AR dataset and got an accuracy of 70%.
